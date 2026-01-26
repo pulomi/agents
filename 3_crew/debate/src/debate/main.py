@@ -18,7 +18,8 @@ def run():
     Run the crew.
     """
     inputs = {
-        'motion': 'There needs to be strict laws to regulate LLMs',
+#        'motion': 'There needs to be strict laws to regulate LLMs',
+        'motion': 'If I want to wake up at 5 AM every day , then I should not skip any days, do it 30 days a month',
     }
     
     try:
