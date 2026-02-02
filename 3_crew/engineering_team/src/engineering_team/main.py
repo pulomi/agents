@@ -23,8 +23,9 @@ The system should prevent the user from withdrawing funds that would leave them 
  from buying more shares than they can afford, or selling shares that they don't have.
  The system has access to a function get_share_price(symbol) which returns the current price of a share, and includes a test implementation that returns fixed prices for AAPL, TSLA, GOOGL.
 """
-module_name = "accounts.py"
-class_name = "Account"
+#module_name = "Accounts.py"
+module_name = "Accounts"
+# class_name = "Account"
 
 
 def run():
@@ -34,7 +35,7 @@ def run():
     inputs = {
         'requirements': requirements,
         'module_name': module_name,
-        'class_name': class_name
+        # 'class_name': class_name
     }
 
     # Create and run the crew

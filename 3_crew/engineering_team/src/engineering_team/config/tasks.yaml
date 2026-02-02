@@ -1,50 +1,189 @@
-design_task:
+requirements_analysis_task:
   description: >
-    Take the high level requirements described here and prepare a detailed design for the engineer;
-    everything should be in 1 python module, but outline the classes and methods in the module.
-    Here are the requirements: {requirements}
-    IMPORTANT: Only output the design in markdown format, laying out in detail the classes and functions in the module, describing the functionality.
+    Take the initial idea provided by the user and produce a detailed requirements document. The document should capture business goals, functional and non-functional requirements, user stories, and any relevant constraints or assumptions.
+    Here is the idea: {requirements}
+    IMPORTANT: Output the requirements document in markdown format, suitable for review by stakeholders and engineers. But if the expected file already exist then reuse that rather creating it again
   expected_output: >
-    A detailed design for the engineer, identifying the classes and functions in the module.
-  agent: engineering_lead
-  output_file: output/{module_name}_design.md
+    A comprehensive requirements document in markdown format, including business goals, requirements, user stories, and constraints.
+  agent: business_analyst
+  output_file: output/{module_name}_requirements.md
 
-code_task:
+solutions_architect_task:
   description: >
-    Write a python module that implements the design described by the engineering lead, in order to achieve the requirements.
-    Here are the requirements: {requirements}
+    Review the requirements and produce a high-level architecture design document. The document should include:
+    - System components and their responsibilities
+    - Technology stack choices with rationale
+    - Data flow and component interactions
+    - Key design patterns to be used
+    - Non-functional requirements considerations (scalability, security, performance)
+    IMPORTANT: Output the design in markdown format, suitable for sharing with stakeholders and engineers.
   expected_output: >
-    A python module that implements the design and achieves the requirements.
+    A comprehensive architecture design document in markdown format, detailing system components, interactions, technology choices, and rationale for design decisions.
+  agent: solutions_architect
+  context:
+    - requirements_analysis_task
+  output_file: output/{module_name}_architecture.md
+
+technical_design_task:
+  description: >
+    As Engineering Lead, translate the architecture into a detailed technical design for implementation:
+    - Break down system into specific classes, methods, and functions
+    - Define interfaces and data structures
+    - Specify error handling approaches
+    - Identify external dependencies and integration points
+    - Outline the module structure with clear responsibilities
+    This serves as the implementation blueprint for engineers.
+  expected_output: >
+    A detailed technical design document in markdown format, including:
+    - Module and class structure with responsibilities
+    - Key methods/functions with signatures and purpose
+    - Data models and their relationships
+    - Error handling strategy
+    - Implementation guidelines and best practices to follow
+  agent: engineering_lead
+  context:
+    - requirements_analysis_task
+    - solutions_architect_task
+  output_file: output/{module_name}_technical_design.md
+
+backend_task:
+  description: >
+    Implement the backend module following the technical design specifications.
+    Review the requirements, architecture, and technical design to understand:
+    - What functionality to implement
+    - How to structure classes and methods
+    - What design patterns to apply
+    Apply best practices including:
+    - Clean, readable, self-documenting code
+    - SOLID principles and proper separation of concerns
+    - Comprehensive error handling with meaningful exceptions
+    - Input validation and defensive programming
+    - Docstrings for classes and public methods
+    - Type hints where appropriate
+  expected_output: >
+    A complete, production-ready Python module implementing the technical design.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
     The output should be valid Python code that can be directly saved to a file and executed.
   agent: backend_engineer
   context:
-    - design_task
-  output_file: output/{module_name}
+    - requirements_analysis_task
+    - solutions_architect_task
+    - technical_design_task
+  output_file: output/{module_name}.py
 
 frontend_task:
   description: >
-    Write a gradio UI in a module app.py that demonstrates the given backend class in {module_name}.
-    Assume there is only 1 user, and keep the UI very simple indeed - just a prototype or demo.
-    Here are the requirements: {requirements}
+    Create a Gradio UI that demonstrates the backend functionality.
+    Review the requirements, architecture, and backend implementation to understand:
+    - What features to expose in the UI
+    - How users will interact with the system
+    - What the user workflow should be
+    Design considerations:
+    - Keep the UI simple and intuitive (single-user prototype)
+    - Properly import and integrate with the backend module
+    - Handle errors gracefully with user-friendly messages
+    - Provide clear input validation and feedback
+    - Follow Gradio best practices for layout and components
+    - Add helpful descriptions/tooltips for user guidance
   expected_output: >
-    A gradio UI in module app.py that demonstrates the given backend class.
-    The file should be ready so that it can be run as-is, in the same directory as the backend module, and it should import the backend class from {module_name}.
+    A complete Gradio app (app.py) that demonstrates all key backend functionality.
+    The UI should be intuitive, properly integrated with the backend, and include error handling.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
     The output should be valid Python code that can be directly saved to a file and executed.
   agent: frontend_engineer
   context:
-    - code_task
+    - requirements_analysis_task
+    - solutions_architect_task
+    - backend_task
   output_file: output/app.py
+
+code_review_task:
+  description: >
+    As Engineering Lead, perform a comprehensive code review of the backend and frontend implementations:
+    1. Verify adherence to requirements and architecture
+    2. Assess code quality (clean code, SOLID principles, pythonic conventions)
+    3. Check error handling and edge cases
+    4. Validate backend-frontend integration
+    5. Ensure maintainability and documentation
+    6. Identify potential issues or improvements
+    Provide actionable feedback and approval decision.
+  expected_output: >
+    A comprehensive code review report in markdown format, including:
+    - Requirements compliance check
+    - Architecture alignment assessment
+    - Code quality analysis (strengths and weaknesses)
+    - Security and performance considerations
+    - Integration validation
+    - Specific issues found with line references
+    - Recommendations for improvements
+    - Final decision: APPROVED / APPROVED WITH CHANGES / NEEDS REWORK
+  agent: engineering_lead
+  context:
+    - requirements_analysis_task
+    - solutions_architect_task
+    - technical_design_task
+    - backend_task
+    - frontend_task
+  output_file: output/{module_name}_code_review.md
 
 test_task:
   description: >
-    Write unit tests for the given backend module {module_name} and create a test_{module_name} in the same directory as the backend module.
+    Create comprehensive test suite for the backend module {module_name}.
+    Write unit tests covering:
+    - All public methods and classes
+    - Happy path scenarios
+    - Edge cases and boundary conditions
+    - Error handling and exceptions
+    - Input validation
+    Follow testing best practices:
+    - Use pytest framework
+    - Clear test names describing what is being tested
+    - Arrange-Act-Assert pattern
+    - Fixtures for common setup
+    - Mock external dependencies if needed
+    - Aim for high code coverage
   expected_output: >
-    A test_{module_name} module that tests the given backend module.
+    A complete test_{module_name}.py file with comprehensive unit tests.
+    Tests should be runnable with pytest and cover all critical functionality.
     IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code block delimiters, or backticks.
     The output should be valid Python code that can be directly saved to a file and executed.
   agent: test_engineer
   context:
-    - code_task
-  output_file: output/test_{module_name}
+    - requirements_analysis_task
+    - technical_design_task
+    - backend_task
+    - code_review_task
+  output_file: output/test_{module_name}.py
+
+penetration_test_task:
+  description: >
+    Perform a comprehensive security assessment of the system including backend and frontend.
+    Security analysis should cover:
+    - Input validation and injection vulnerabilities (SQL, command, code injection)
+    - Authentication and authorization flaws
+    - Data exposure and sensitive information leaks
+    - Error handling that reveals system information
+    - Dependency vulnerabilities
+    - Business logic flaws
+    - Frontend security (XSS, CSRF considerations)
+    For each finding, provide:
+    - Vulnerability description
+    - Risk rating (Critical/High/Medium/Low)
+    - Proof of concept or example
+    - Remediation recommendations
+    - References to security standards (OWASP)
+  expected_output: >
+    A comprehensive security assessment report in markdown format with:
+    - Executive summary
+    - Detailed findings with risk ratings
+    - Evidence and proof of concepts
+    - Prioritized remediation recommendations
+    - References to security best practices
+  agent: penetration_tester
+  context:
+    - requirements_analysis_task
+    - backend_task
+    - frontend_task
+    - test_task
+    - code_review_task
+  output_file: output/{module_name}_security_report.md

@@ -11,10 +11,33 @@ class EngineeringTeam():
     tasks_config = 'config/tasks.yaml'
 
     @agent
+    def business_analyst(self) -> Agent:
+        return Agent(
+            config=self.agents_config['business_analyst'],
+            verbose=True,
+        )
+
+    @agent
+    def solutions_architect(self) -> Agent:
+        return Agent(
+            config=self.agents_config['solutions_architect'],
+            verbose=True,
+        )
+    
+    @agent
+    def penetration_tester(self) -> Agent:
+        return Agent(
+            config=self.agents_config['penetration_tester'],
+            verbose=True,
+            allow_delegation=False,  # Security should focus on assessment
+        )
+
+    @agent
     def engineering_lead(self) -> Agent:
         return Agent(
             config=self.agents_config['engineering_lead'],
             verbose=True,
+            allow_delegation=True
         )
 
     @agent
@@ -22,10 +45,7 @@ class EngineeringTeam():
         return Agent(
             config=self.agents_config['backend_engineer'],
             verbose=True,
-            allow_code_execution=True,
-            code_execution_mode="safe",  # Uses Docker for safety
-            max_execution_time=500, 
-            max_retry_limit=3 
+            allow_delegation=False,  # Backend should focus on implementation
         )
     
     @agent
@@ -33,6 +53,7 @@ class EngineeringTeam():
         return Agent(
             config=self.agents_config['frontend_engineer'],
             verbose=True,
+            allow_delegation=False,  # Frontend should focus on UI
         )
     
     @agent
@@ -40,22 +61,31 @@ class EngineeringTeam():
         return Agent(
             config=self.agents_config['test_engineer'],
             verbose=True,
-            allow_code_execution=True,
-            code_execution_mode="safe",  # Uses Docker for safety
-            max_execution_time=500, 
-            max_retry_limit=3 
+            allow_delegation=False,  # QA should focus on testing
         )
 
     @task
-    def design_task(self) -> Task:
+    def requirements_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['design_task']
+            config=self.tasks_config['requirements_analysis_task'],
         )
 
     @task
-    def code_task(self) -> Task:
+    def solutions_architect_task(self) -> Task:
         return Task(
-            config=self.tasks_config['code_task'],
+            config=self.tasks_config['solutions_architect_task'],
+        )
+
+    @task
+    def technical_design_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['technical_design_task'],
+        )
+
+    @task
+    def backend_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['backend_task'],
         )
 
     @task
@@ -65,17 +95,30 @@ class EngineeringTeam():
         )
 
     @task
+    def code_review_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['code_review_task'],
+        )
+
+    @task
     def test_task(self) -> Task:
         return Task(
             config=self.tasks_config['test_task'],
-        )   
+        ) 
+
+    @task
+    def penetration_test_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['penetration_test_task'],
+        ) 
 
     @crew
     def crew(self) -> Crew:
-        """Creates the research crew"""
+        """Creates the engineering team crew"""
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
             process=Process.sequential,
+            memory=True,
             verbose=True,
         )
